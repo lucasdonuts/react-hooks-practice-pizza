@@ -1,9 +1,12 @@
 import React from "react";
 import Pizza from "./Pizza";
 
-function PizzaList({ pizzas, setSelected }) {
+function PizzaList({ pizzas, onEditClick }) {
+
   const pizzaComponents = pizzas.map( pizza => {
-    return <Pizza key={ pizza.id } pizza={ pizza } setSelected={ setSelected } />
+    return(
+      <Pizza key={ pizza.id } pizza={ pizza} onEditClick={ onEditClick } />
+    )
   })
 
   return (

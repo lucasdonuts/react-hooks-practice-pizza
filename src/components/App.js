@@ -4,36 +4,58 @@ import PizzaForm from "./PizzaForm";
 import PizzaList from "./PizzaList";
 
 function App() {
-  const [pizzas, setPizzas] = useState([])
-  const [selected, setSelected] = useState({
+  const [pizzas, setPizzas] = useState([]);
+  const [selectedPizza, setSelectedPizza] = useState({
     topping: '',
     size: '',
     vegetarian: false
   })
 
-  const updatePizzas = updatedPizza => {
-    setPizzas( () => pizzas.map( pizza => {
-      if( updatedPizza.id === pizza.id) {
+  useEffect( () => {
+    fetch('http://localhost:3001/pizzas')
+      .then( res => res.json() )
+      .then( pizzaList => setPizzas(pizzaList) )
+  }, [])
+
+  const onEditClick = (pizzaToEdit) => {
+    setSelectedPizza(pizzaToEdit);
+  }
+
+  const updatePizzaDOM = (updatedPizza) => {
+    const updatedPizzas = pizzas.map( pizza => {
+      if(pizza.id === updatedPizza.id) {
         return updatedPizza;
       } else {
         return pizza;
       }
-    }))
+    })
+
+    setPizzas(updatedPizzas);
   }
 
-  useEffect( () => {
-    fetch(`http://localhost:3001/pizzas`)
-      .then( res => res.json() )
-      .then( setPizzas )
-  }, [])
+  const updatePizzaDB = (updatedPizza) => {
+    fetch(`http://localhost:3001/pizzas/${updatedPizza.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedPizza)
+    })
+    .then( res => res.json() )
+    .then( pizza => console.log(pizza) )
+  }
 
-  const listProps = { pizzas, setSelected }
+  const onEditSubmit = (updatedPizza) => {
+    updatePizzaDOM(updatedPizza);
+
+    updatePizzaDB(updatedPizza);
+  }
 
   return (
     <>
       <Header />
-      <PizzaForm selected={ selected } updatePizzas={ updatePizzas } />
-      <PizzaList { ...listProps } />
+      <PizzaForm selectedPizza={ selectedPizza } onEditSubmit={ onEditSubmit } />
+      <PizzaList pizzas={ pizzas } onEditClick={ onEditClick } />
     </>
   );
 }
