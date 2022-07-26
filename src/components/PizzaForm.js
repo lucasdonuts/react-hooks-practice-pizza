@@ -1,19 +1,42 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-function PizzaForm() {
+function PizzaForm({ selected, updatePizzas }) {
+  const [form, setForm] = useState( selected )
+
+  useEffect( () => {
+    setForm( selected )
+  }, [ selected ])
+
+  const userInput = e => setForm( form => ({...form, [e.target.name]: e.target.value}))
+
+  const toggleRadio = (e) =>{
+    if( e.target.value === 'Vegetarian' ) {
+      setForm( form => ({ ...form, vegetarian: true }))
+    } else {
+      setForm ( form => ({ ...form, vegetarian: false }))
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updatePizzas(form);
+  }
+
   return (
-    <form onSubmit={null /*handle that submit*/}>
+    <form onSubmit={ handleSubmit }>
       <div className="form-row">
         <div className="col-5">
           <input
+            onChange={ userInput }
             className="form-control"
             type="text"
             name="topping"
+            value={ form.topping }
             placeholder="Pizza Topping"
           />
         </div>
         <div className="col">
-          <select className="form-control" name="size">
+          <select onChange={ userInput } className="form-control" name="size" value={ form.size }>
             <option value="Small">Small</option>
             <option value="Medium">Medium</option>
             <option value="Large">Large</option>
@@ -22,6 +45,8 @@ function PizzaForm() {
         <div className="col">
           <div className="form-check">
             <input
+              checked={ form.vegetarian ? true : false }
+              onChange={ toggleRadio }
               className="form-check-input"
               type="radio"
               name="vegetarian"
@@ -31,6 +56,8 @@ function PizzaForm() {
           </div>
           <div className="form-check">
             <input
+              checked={ form.vegetarian ? false : true }
+              onChange={ toggleRadio }
               className="form-check-input"
               type="radio"
               name="vegetarian"
